@@ -1,6 +1,9 @@
 package backlog
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 func (c *Client) GetUsers() ([]User, error) {
 	resp, err := c.Get("/users")
@@ -15,6 +18,36 @@ func (c *Client) GetUsers() ([]User, error) {
 		return nil, err
 	}
 	return users, err
+}
+
+func (c *Client) GetUser(id int) (*User, error) {
+	resp, err := c.Get(fmt.Sprintf("/users/%d", id))
+	defer resp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	user := &User{}
+	err = json.NewDecoder(resp.Body).Decode(&user)
+	if err != nil {
+		return nil, err
+	}
+	return user, err
+}
+
+func (c *Client) GetMyself() (*User, error) {
+	resp, err := c.Get("/users/myself")
+	defer resp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	user := &User{}
+	err = json.NewDecoder(resp.Body).Decode(&user)
+	if err != nil {
+		return nil, err
+	}
+	return user, err
 }
 
 type User struct {
